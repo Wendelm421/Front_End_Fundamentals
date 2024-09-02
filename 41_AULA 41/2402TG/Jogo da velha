@@ -1,0 +1,192 @@
+body {
+    display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+  @keyframes mudarCor {
+    0% { color: lightgray; }
+    100% { color:black ; }
+}
+
+.movimento {
+    font-size: 2em;
+    animation: mudarCor 2s 
+      infinite;
+}
+
+.game-container {
+  text-align: center;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 170px);
+  grid-template-rows: repeat(3, 170px);
+  gap: 5px;
+  margin: 20px auto;
+  box-shadow: 0.1em 0.1em 0.2em lightgray;
+  border: 2px solid;
+
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  font-size: 2em;
+  cursor: pointer;
+  border: 2px solid #333;
+}
+
+.cell:hover {
+  background-color: #8bf787;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: green;
+  color: white;
+  border-radius: 10px;}
+
+  button:hover{
+    color:green;
+    background-color: white;
+    border: 2px solid green;
+    border-radius: 10px;
+    padding: 11px 21px;
+    }
+
+
+#status {
+  margin-top: 10px;
+  font-size: 1.2em;
+  color: #333;
+}
+ 31 changes: 31 additions & 0 deletions31  
+41_AULA 41/2402TG/a.html
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha</title>
+    <link rel="stylesheet" href="a.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="movimento">Jogo da Velha</h1>
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+
+        <button id="resetButton">Reiniciar Jogo</button>
+        <p id="status">Vez do jogador X</p>
+    </div>
+
+    <!-- Mova o script para o final do body -->
+    <script src="a.js"></script>
+</body>
+</html>
+ 79 changes: 79 additions & 0 deletions79  
+41_AULA 41/2402TG/a.js
+Original file line number	Diff line number	Diff line change
+@@ -0,0 +1,79 @@
+const cells = document.querySelectorAll('.cell');
+const messageElement = document.getElementById('message');
+const resetButton = document.getElementById('resetButton');
+let currentPlayer = 'X';
+let gameActive = true;
+let board = ['', '', '', '', '', '', '', '', ''];
+
+const winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
+
+function handleCellClick(event) {
+    const clickedCell = event.target;
+    const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+    if (board[clickedCellIndex] !== '' || !gameActive) {
+        return;
+    }
+
+    board[clickedCellIndex] = currentPlayer;
+    clickedCell.textContent = currentPlayer;
+
+    checkForWinner();
+    switchPlayer();
+}
+
+function switchPlayer() {
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    messageElement.textContent = `Vez do jogador ${currentPlayer}`;
+}
+
+function checkForWinner() {
+    let roundWon = false;
+
+    for (let i = 0; i < winningConditions.length; i++) {
+        const winCondition = winningConditions[i];
+        const a = board[winCondition[0]];
+        const b = board[winCondition[1]];
+        const c = board[winCondition[2]];
+
+        if (a === '' || b === '' || c === '') {
+            continue;
+        }
+
+        if (a === b && b === c) {
+            roundWon = true;
+            break;
+        }
+    }
+
+    if (roundWon) {
+        messageElement.textContent = `Jogador ${currentPlayer} venceu!`;
+        gameActive = false;
+        return;
+    }
+
+    if (!board.includes('')) {
+        messageElement.textContent = 'Empate!';
+        gameActive = false;
+        return;
+    }
+}
+
+function resetGame() {
+    currentPlayer = 'X';
+    gameActive = true;
+    board = ['', '', '', '', '', '', '', '', ''];
+       cells.forEach(cell => cell.textContent = '');
+}
+
+cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+resetButton.addEventListener('click', resetGame);
